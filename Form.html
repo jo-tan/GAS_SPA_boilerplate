@@ -1,0 +1,56 @@
+/**
+ * To write input data into the sheets
+ * It is design to write into 1 table for now
+ */
+<div class="form-section">
+    <h2>Input Form</h2>
+    <div class="form-group">
+        <label for="tableSelect">Select Form：</label>
+        <select id="tableSelect">
+            <option value="formA">Form A</option>
+            <option value="formB">Form B</option>
+            <option value="formC">Form C</option>
+        </select>
+    </div>
+
+    <div id="formA-fields" class="table-fields">
+        <h3>Form A Data</h3>
+        <div class="form-group">
+            <label for="nameA">Name：</label>
+            <input type="text" id="nameA" required>
+        </div>
+        <div class="form-group">
+            <label for="emailA">Email：</label>
+            <input type="email" id="emailA" required>
+        </div>
+    </div>
+
+    <div id="formB-fields" class="table-fields" style="display: none;">
+        <h3>Form B data</h3>
+        <div class="form-group">
+            <label for="nameB">Name：</label>
+            <input type="text" id="nameB" required>
+        </div>
+        <div class="form-group">
+            <label for="statusB">Status：</label>
+            <input type="text" id="statusB" required>
+        </div>
+    </div>
+
+    <div id="formC-fields" class="table-fields" style="display: none;">
+        <h3>Form C data</h3>
+        <div class="form-group">
+            <label for="itemC">Item：</label>
+            <input type="text" id="itemC" required>
+        </div>
+        <div class="form-group">
+            <label for="amountC">Amount：</label>
+            <input type="text" id="amountC" required>
+        </div>
+    </div>
+    
+    <div class="button-group">
+        <button id="copyBtn">Copy the content</button>
+        <button id="sendBtn">review and mail</button>
+    </div>
+</div>

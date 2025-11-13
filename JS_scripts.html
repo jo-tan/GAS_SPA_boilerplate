@@ -1,0 +1,189 @@
+<script>
+        const tabContentDiv = document.getElementById('content');
+
+        // Default page
+        loadPage('form');
+
+        // event listener for navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const tabId = link.dataset.tab;
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                loadPage(tabId);
+            });
+        });
+
+        // *** SPA loading ***
+        function loadPage(pageName) {
+            document.getElementById('loading').style.display = 'block';
+            
+            let loadFunction;
+            if (pageName === 'form') {
+                loadFunction = 'getFormHtml';
+            } else if (pageName === 'dashboard') {
+                loadFunction = 'getDashboardHtml';
+            } else {
+                return;
+            }
+            
+            google.script.run
+                .withSuccessHandler(html => {
+                    document.getElementById('loading').style.display = 'none';
+                    tabContentDiv.innerHTML = html;
+                    if (pageName === 'form') {
+                        setupFormListeners();
+                    } else if (pageName === 'dashboard') {
+                        setupDashboardListeners();
+                    }
+                })
+                .withFailureHandler(onFailure)
+                [loadFunction]();
+        }
+
+        // --- Forms functions ---
+        function setupFormListeners() {
+            // Switch forms
+            document.getElementById('tableSelect').addEventListener('change', function() {
+                const selectedValue = this.value;
+                const fields = document.getElementsByClassName('table-fields');
+                for (let i = 0; i < fields.length; i++) {
+                    fields[i].style.display = 'none';
+                }
+                document.getElementById(selectedValue + '-fields').style.display = 'block';
+            });
+
+            // Copy button
+            document.getElementById('copyBtn').addEventListener('click', function() {
+                const data = validateAndCollectData();
+                if (!data) return;
+                document.getElementById('loading').style.display = 'block';
+                google.script.run
+                    .withSuccessHandler(onCopySuccess)
+                    .withFailureHandler(onFailure)
+                    .generateEmailObject(data);
+            });
+
+            // Send button
+            document.getElementById('sendBtn').addEventListener('click', function() {
+                const data = validateAndCollectData();
+                if (!data) return;
+                document.getElementById('loading').style.display = 'block';
+                google.script.run
+                    .withSuccessHandler(showConfirmationDialog)
+                    .withFailureHandler(onFailure)
+                    .generateEmailObject(data);
+            });
+        }
+
+        // --- Functions for Dashboard ---
+        function setupDashboardListeners() {
+            document.getElementById('dashboard-refresh').addEventListener('click', loadDashboardData);
+            loadDashboardData();
+        }
+
+        function loadDashboardData() {
+            document.getElementById('loading').style.display = 'block';
+            google.script.run
+                .withSuccessHandler(renderDashboard)
+                .withFailureHandler(onFailure)
+                .getDataFromSheet();
+        }
+
+        function renderDashboard(data) {
+            document.getElementById('loading').style.display = 'none';
+            const table = document.getElementById('dashboard-table');
+            table.innerHTML = '';
+            
+            if (data && data.length > 0) {
+                const headerRow = table.insertRow();
+                data[0].forEach(headerText => {
+                    const th = document.createElement('th');
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+                });
+                for (let i = 1; i < data.length; i++) {
+                    const rowData = data[i];
+                    const tr = table.insertRow();
+                    rowData.forEach(cellData => {
+                        const td = document.createElement('td');
+                        td.textContent = cellData;
+                        tr.appendChild(td);
+                    });
+                }
+            } else {
+                table.innerHTML = '<p>No data</p>';
+            }
+        }
+        
+        // --- General Functions ---
+        function validateAndCollectData() {
+            const form = document.querySelector('.form-section');
+            if (!form.checkValidity()) {
+                showMessage('Please fill out all required fields.', 'error');
+                return null;
+            }
+            return collectData();
+        }
+
+        function collectData() {
+            const selectedTable = document.getElementById('tableSelect').value;
+            let data = { selectedTable: selectedTable };
+            if (selectedTable === 'formA') {
+                data.name = document.getElementById('nameA').value;
+                data.email = document.getElementById('emailA').value;
+            } else if (selectedTable === 'formB') {
+                data.projectName = document.getElementById('nameB').value;
+                data.status = document.getElementById('statusB').value;
+            } else if (selectedTable === 'formC') {
+                data.item = document.getElementById('itemC').value;
+                data.amount = document.getElementById('amountC').value;
+            }
+            return data;
+        }
+
+        function onCopySuccess(emailObject) {
+            document.getElementById('loading').style.display = 'none';
+            navigator.clipboard.writeText(emailObject.fullContentForDisplay).then(function() {
+                showMessage('Email content is saved to clipboard', 'success');
+            }, function() {
+                showMessage('Copy failed, please copy manually.', 'error');
+            });
+        }
+
+        function showConfirmationDialog(emailObject) {
+            document.getElementById('loading').style.display = 'none';
+            const confirmed = confirm('Are you sure you want to send the email?\n\n' + emailObject.fullContentForDisplay);
+            if (confirmed) {
+                document.getElementById('loading').style.display = 'block';
+                google.script.run
+                    .withSuccessHandler(onSendSuccess)
+                    .withFailureHandler(onFailure)
+                    .sendEmail(emailObject);
+            } else {
+                showMessage('Canceled the mail...', 'error');
+            }
+        }
+
+        function onSendSuccess(msg) {
+            document.getElementById('loading').style.display = 'none';
+            showMessage(msg, 'success');
+        }
+
+        function onFailure(error) {
+            console.error('GAS Script Error:', error);
+            document.getElementById('loading').style.display = 'none';
+            showMessage('Error：' + error.message, 'error');
+        }
+
+        function showMessage(text, type) {
+            const msgEl = document.getElementById('message');
+            msgEl.textContent = text;
+            msgEl.className = 'alert alert-' + type;
+            msgEl.style.display = 'block';
+            setTimeout(() => {
+                msgEl.style.display = 'none';
+            }, 5000);
+        }
+</script>

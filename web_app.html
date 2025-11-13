@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?!= HtmlService.createHtmlOutputFromFile('CSS_styles').getContent(); ?>
+</head>
+<body>
+    <div class="container">
+
+        <div class="nav-tabs">
+            <button class="nav-link active" data-tab="form" data-key="form-tab">Form</button>
+            <button class="nav-link" data-tab="dashboard" data-key="dashboard-tab">Dashboard</button>
+        </div>
+        
+        <div id="content"></div>
+        <div id="loading" style="display: none;" data-key="loading">Processing the data...</div>
+        <div id="message" class="alert" style="display: none;"></div>
+    </div>
+    <?!= HtmlService.createHtmlOutputFromFile('JS_scripts').getContent(); ?>
+</body>
+</html>
