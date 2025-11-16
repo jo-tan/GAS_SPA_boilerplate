@@ -12,3 +12,10 @@ It provides a basic structure for:
 
 ### A Note on Performance
 Due to the nature of Google Apps Script, you may notice a slight delay when loading data or submitting the form. This is expected. Every call from the web app to the backend script involves a round-trip to Google's servers, which also perform tasks like opening spreadsheets and sending emails. This server-side processing is the primary reason for the latency.
+
+### Great Reference Resources
+*  google-apps-script-aewsome-list[https://github.com/oshliaer/google-apps-script-awesome-list?tab=readme-ov-file#awesome-code--things]
+*  google-apps-script-cheat-sheet[https://github.com/jc324x/google-apps-script-cheat-sheet]
+*  Google Apps Script Snippets [https://apps-script-snippets.contributor.pw/sheets/]
+*  Scripting with Shiva[https://scriptingwithshiva.blogspot.com/]
+*  Google's Developer Resource[https://developers.google.com/apps-script]
